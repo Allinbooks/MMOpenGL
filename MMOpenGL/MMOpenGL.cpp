@@ -1,12 +1,14 @@
 ﻿// MMOpenGL.cpp: 定义应用程序的入口点。
 //
 #include <stdio.h>
+#include <stdlib.h>
 
 // 顺序有要求，GLFW依赖于glad
 #include <glad/glad.h>
 #include <GLFW/glfw3.h> 
 
 #include "MMOpenGL.h"
+#include "MMGL.h"
 
 
 
@@ -41,6 +43,17 @@ int main()
 	// 制作GLAD
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
+	// GLAD初始化完成
+	//GLuint shader = glCreateShader(GL_VERTEX_SHADER);
+	//GLuint shader = glCreateShader(GL_FRAGMENT_SHADER);
+
+	char* shaderStr = (char*)"xiaoming";
+
+	// MMGLShader * shader = new MMGLShader(shaderStr, MMGLShaderType::MMGL_SHADER_VERTEX);
+	
+	MMGLProgram* program = new MMGLProgram(shaderStr, shaderStr);
+
+
 	while (!glfwWindowShouldClose(window)) {
 		//TODO 绘制操作
 
@@ -48,6 +61,12 @@ int main()
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
+
+	// delete shader;
+	 delete program;
+
+	
+	glfwTerminate();
 
 	printf("Close success!!!\n");
 	return 0;
