@@ -38,3 +38,9 @@ MMGLProgram::~MMGLProgram()
 		program = 0;
 	}
 }
+
+
+int MMGLProgram::UseProgram() {
+	glUseProgram(program);
+	return 0;
+}
