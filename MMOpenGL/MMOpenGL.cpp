@@ -52,8 +52,12 @@ int main()
 	//GLuint shader = glCreateShader(GL_FRAGMENT_SHADER);
 
 	//char* shaderStr = (char*)"void main(){}";
+	float aa = 0;
+
 	char* vertexShader = SHADER(
 		#version 330\n
+
+		uniform float a;
 
 		layout(location = 0) in vec3 pos;
 		// layout(location = 1) in vec3 pos2;
@@ -64,7 +68,8 @@ int main()
 		void main() {
 			outPos = pos;
 			//double w = 1.0;
-			gl_Position = vec4(pos.x, pos.y, pos.z, 1.0);
+			float _a = sin(a);
+			gl_Position = vec4(pos.x * _a, pos.y * _a, pos.z * _a, 1.0);
 		}
 	);
 
@@ -130,6 +135,10 @@ int main()
 		// 养成很久之前绑定voa的习惯
 		program->UseProgram();
 
+		GLint location = glGetUniformLocation(program->program, "a");
+
+		glUniform1f(location, aa);
+		
 
 		//vbo模式(GL_TRIANGLES是三角模式)
 		//vao->BindVAO();
@@ -137,7 +146,7 @@ int main()
 
 		//ebo模式
 		vao->Draw();
-
+		aa += 0.001;
 
 
 		//TODO 等到双缓冲之后再了解

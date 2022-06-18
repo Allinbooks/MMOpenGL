@@ -25,8 +25,9 @@ public:
 
 	int UseProgram();
 
-private:
+public:
 	GLuint program = 0;
+
 };
 
 class MMGLVAO
