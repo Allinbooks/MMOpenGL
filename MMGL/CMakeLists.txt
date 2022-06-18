@@ -11,4 +11,5 @@ add_library (
     MMGL.h
     MMGLShader.cpp
 	MMGLProgram.cpp
- "MMGLVAO.cpp")
+	MMGLVAO.cpp
+)

@@ -81,10 +81,36 @@ int main()
 	);
 
 	// 顶点坐标
+	// float vertex[] = {
+	// 	 0.0f,  1.0f, 0.0f,
+	// 	-1.0f, -1.0f, 0.0f,
+	// 	 1.0f, -1.0f, 0.0f
+	// };
+
+	//float vertex[] = {
+	//	/* A */ -1.0f,  1.0f, 0.0f,
+	//	/* D */ -1.0f, -1.0f, 0.0f,
+	//	/* B */  1.0f,  1.0f, 0.0f,
+
+	//	/* B */  1.0f,  1.0f, 0.0f,
+	//	/* D */ -1.0f, -1.0f, 0.0f,
+	//	/* C */  1.0f, -1.0f, 0.0f
+
+	//};
+
 	float vertex[] = {
-		 0.0f,  1.0f, 0.0f,
-		-1.0f, -1.0f, 0.0f,
-		 1.0f, -1.0f, 0.0f
+		/* A */ -1.0f,  1.0f, 0.0f,
+		/* B */  1.0f,  1.0f, 0.0f,
+		/* C */  1.0f, -1.0f, 0.0f,
+		/* D */ -1.0f, -1.0f, 0.0f
+
+	};
+
+	unsigned int index[] = {
+		/* A->D->B */
+		0, 3, 1,
+		/* B->D->C */
+		1, 3, 2
 	};
 
 	// MMGLShader * shader = new MMGLShader(shaderStr, MMGLShaderType::MMGL_SHADER_VERTEX);
@@ -92,7 +118,8 @@ int main()
 	MMGLProgram* program = new MMGLProgram(vertexShader, fragmentShader);
 
 	MMGLVAO* vao = new MMGLVAO();
-	vao->AddVertex3D(vertex, 3, 0);
+	vao->AddVertex3D(vertex, 4, 0);
+	vao->Setindex(index, 6);
 
 	while (!glfwWindowShouldClose(window)) {
 		//TODO 绘制操作
@@ -102,10 +129,15 @@ int main()
 
 		// 养成很久之前绑定voa的习惯
 		program->UseProgram();
-		vao->BindVAO();
 
-		//GL_TRIANGLES是三角模式
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+
+		//vbo模式(GL_TRIANGLES是三角模式)
+		//vao->BindVAO();
+		//glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		//ebo模式
+		vao->Draw();
+
 
 
 		//TODO 等到双缓冲之后再了解

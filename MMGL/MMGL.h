@@ -36,10 +36,17 @@ public:
 	~MMGLVAO();
 	
 	int AddVertex3D(float* data, int vertexCount, int layout);
+
+	int Setindex(unsigned int* indexData, int indexCount);
+
+	int Draw();
+
 	int BindVAO();
 private:
 	GLuint vao = 0;
-	
+	GLuint ebo = 0;
+
+	int drawTime = 0;
 
 	std::vector<GLuint> vboList;
 };

@@ -16,10 +16,16 @@ MMGLVAO::~MMGLVAO()
 
 	vboList.clear();
 
+	if (ebo != 0) {
+		glDeleteBuffers(1, &ebo);
+		ebo = 0;
+	}
+
 	if (vao != NULL) {
 		glDeleteVertexArrays(1, &vao);
 		vao = NULL;
 	}
+
 }
 
 int MMGLVAO::AddVertex3D(float * data, int vertexCount, int layout) {
@@ -47,5 +53,26 @@ int MMGLVAO::AddVertex3D(float * data, int vertexCount, int layout) {
 
 int MMGLVAO::BindVAO() {
 	glBindVertexArray(vao);
+	return 0;
+}
+
+int MMGLVAO::Setindex(unsigned int* indexData, int indexCount) {
+	glBindVertexArray(vao);
+
+	glGenBuffers(1, &ebo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexCount * 3 * sizeof(unsigned int), indexData, GL_STATIC_DRAW);
+
+	glBindVertexArray(0);
+
+	drawTime = indexCount;
+	return 0;
+}
+
+int MMGLVAO::Draw() {
+	BindVAO();
+	//GLenum mode, GLsizei count, GLenum type, const void *indices
+	glDrawElements(GL_TRIANGLES, drawTime, GL_UNSIGNED_INT, 0);
 	return 0;
 }
