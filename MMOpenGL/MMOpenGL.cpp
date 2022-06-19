@@ -52,7 +52,6 @@ int main()
 	//GLuint shader = glCreateShader(GL_FRAGMENT_SHADER);
 
 	//char* shaderStr = (char*)"void main(){}";
-	float aa = 0;
 
 	char* vertexShader = SHADER(
 		#version 330\n
@@ -60,13 +59,16 @@ int main()
 		uniform float a;
 
 		layout(location = 0) in vec3 pos;
-		// layout(location = 1) in vec3 pos2;
+		layout(location = 1) in vec3 uvPos;
 		// layout(location = 2) in vec3 pos3;
 
 		out vec3 outPos;
 
+		out vec3 outUVPos;
+
 		void main() {
 			outPos = pos;
+			outUVPos = uvPos;
 			//double w = 1.0;
 			float _a = sin(a);
 			gl_Position = vec4(pos.x * _a, pos.y * _a, pos.z * _a, 1.0);
@@ -79,9 +81,17 @@ int main()
 		out vec4 rgbaColor;
 
 		in vec3 outPos;
+		in vec3 outUVPos;
+
+		uniform sampler2D t;
 
 		void main() {
+			// 纹理坐标
+			vec2 uv = vec2(outUVPos.x, outUVPos.y);
+			vec4 color = texture(t, uv);
 			rgbaColor = vec4(outPos, 1.0);
+
+			rgbaColor = color;
 		}
 	);
 
@@ -111,6 +121,14 @@ int main()
 
 	};
 
+	float vertexUV[] = {
+		/* A */  0.0f,  1.0f, 0.0f,
+		/* B */  1.0f,  1.0f, 0.0f,
+		/* C */  1.0f,  0.0f, 0.0f,
+		/* D */  0.0f,  0.0f, 0.0f
+
+	};
+
 	unsigned int index[] = {
 		/* A->D->B */
 		0, 3, 1,
@@ -124,29 +142,61 @@ int main()
 
 	MMGLVAO* vao = new MMGLVAO();
 	vao->AddVertex3D(vertex, 4, 0);
+	vao->AddVertex3D(vertexUV, 4, 1);
 	vao->Setindex(index, 6);
 
+	//手动写入图片
+	int imgWidth = 2;
+	int imgHeight = 2;
+	unsigned char imgData[] = {
+		255,0,0,	0,255,0,  
+		0,0,255,	127,127,127
+	};
+
+
+	GLuint textureId = 0;
+	glGenTextures(1, &textureId);
+
+	glBindTexture(GL_TEXTURE_2D, textureId);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imgWidth, imgHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, imgData);
+
+	float aa = 0.0f;
 	while (!glfwWindowShouldClose(window)) {
 		//TODO 绘制操作
 
 		// 清空画布中的颜色内容
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		// 养成很久之前绑定voa的习惯
+		// 养成使用之前绑定voa的习惯
 		program->UseProgram();
 
+		//向vertexShader传入参数
 		GLint location = glGetUniformLocation(program->program, "a");
-
 		glUniform1f(location, aa);
-		
 
-		//vbo模式(GL_TRIANGLES是三角模式)
-		//vao->BindVAO();
-		//glDrawArrays(GL_TRIANGLES, 0, 6);
+		// 将texture传入fragmentShader
+		// 传入纹理（texture）,引入纹理单元，传入的是纹理单元的编号
+		GLint textureLocation = glGetUniformLocation(program->program, "t");
+		// 激活纹理单元GL_TEXTURE0的0和glUniform1i的第二个参数绑定
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, textureId);
+		glUniform1i(textureLocation, 0);
+
+		// vbo模式(GL_TRIANGLES是三角模式)
+		// vao->BindVAO();
+		// glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		//ebo模式
 		vao->Draw();
-		aa += 0.001;
+		aa += 0.005;
 
 
 		//TODO 等到双缓冲之后再了解
